@@ -83,12 +83,14 @@
     <Content Include="Global.asax" />
     <Content Include="sok.aspx" />
     <Content Include="upload.aspx" />
+    <Content Include="UploadFile.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\FileHandling.cs" />
+    <Compile Include="Classes\HandleImport.cs" />
     <Compile Include="Classes\RegistryItem.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -107,6 +109,13 @@
     </Compile>
     <Compile Include="upload.aspx.designer.cs">
       <DependentUpon>upload.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="UploadFile.aspx.cs">
+      <DependentUpon>UploadFile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UploadFile.aspx.designer.cs">
+      <DependentUpon>UploadFile.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

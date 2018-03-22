@@ -30,10 +30,10 @@ namespace Sakregister
         {
             if ( !Page.IsPostBack )
             {
-                            btnSubmit.Value = "Ladda upp för verifiering";
+                btnSubmit.Value = "Ladda upp för verifiering";
 
                 SortDirection = "DESC";
-                SortColumn = "Nr1";
+                SortColumn = "Id";
                 BindGrid();
             }
         }
@@ -96,7 +96,7 @@ namespace Sakregister
             }
         }
 
-        private List< RegistryItem > InsertExcelRecords( string filePath , bool cbPreviewChecked )
+        private DataTable InsertExcelRecords( string filePath , bool cbPreviewChecked )
         {
             try
             {
@@ -108,7 +108,7 @@ namespace Sakregister
                 //Create Connection to Excel work book 
                 using ( var connExcel = new OleDbConnection(excelConnString) )
                 {
-                    var regItems = new List< RegistryItem >();
+                    var dt = new DataTable();
                     //Create OleDbCommand to fetch data from Excel 
                     using ( var cmdExcel = new OleDbCommand(query , connExcel) )
                     {
@@ -116,7 +116,7 @@ namespace Sakregister
                         {
                             using ( var odaExcel = new OleDbDataAdapter() )
                             {
-                                var dt = new DataTable();
+                                
                                 cmdExcel.Connection = connExcel;
 
                                 //Get the name of First Sheet.
@@ -127,28 +127,31 @@ namespace Sakregister
 
                                 //Read Data from First Sheet.
                                 connExcel.Open();
-                                cmdExcel.CommandText = "SELECT * From [" + sheetName + "]";
+                                cmdExcel.CommandText = "SELECT *,  Created From [" + sheetName + "]";
                                 odaExcel.SelectCommand = cmdExcel;
                                 odaExcel.Fill(dt);
+                               
                                 connExcel.Close();
-
-                                foreach ( DataRow row in dt.Rows )
-                                    regItems.Add(
-                                        new RegistryItem
-                                        {
-                                            Ar = row["Ar"].ToString() ,
-                                            Ord = row["Ord"].ToString() ,
-                                            Arende = row["Arende"].ToString() ,
-                                            Betankande = row["Betankande"].ToString() ,
-                                            Skrivelse = row["Skrivelse"].ToString() ,
-                                            Protokoll = row["Protokoll"].ToString()
-                                        });
-                            }
-                            btnSubmit.Value = "verifiera & markera för uppladdning.";
+                               
+                           
+                                //foreach ( DataRow row in dt.Rows )
+                                //    regItems.Add(
+                                //        new RegistryItem
+                                //        {
+                                //            Ar = row["Ar"].ToString() ,
+                                //            Ord = row["Ord"].ToString() ,
+                                //            Arende = row["Arende"].ToString() ,
+                                //            Betankande = row["Betankande"].ToString() ,
+                                //            Skrivelse = row["Skrivelse"].ToString() ,
+                                //            Protokoll = row["Protokoll"].ToString()
+                                //        });
+                            } btnSubmit.Value = "verifiera & markera för uppladdning.";
+                            
                         }
                         else
                         {
                             connExcel.Open();
+                           
                             using ( var dReader = cmdExcel.ExecuteReader() )
                             {
                                 using ( var sqlBulk = new SqlBulkCopy(strConnection) )
@@ -163,17 +166,19 @@ namespace Sakregister
                                     sqlBulk.DestinationTableName = "sakregister";
                                     sqlBulk.WriteToServer(dReader);
                                 }
+                                dt = GetTableData();
                             }
-                            BindGrid();
+                            
                         }
                     }
-                    return regItems;
+                    return dt;
+                   
                 }
             }
             catch ( Exception ex )
             {
                 Response.Write("Error: " + ex.Message);
-                return new List< RegistryItem >();
+           throw new Exception(ex.ToString());
             }
         }
 

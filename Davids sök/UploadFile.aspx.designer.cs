@@ -10,7 +10,7 @@
 namespace Sakregister {
     
     
-    public partial class sok {
+    public partial class UploadFile {
         
         /// <summary>
         /// form1 control.
@@ -22,31 +22,58 @@ namespace Sakregister {
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
         
         /// <summary>
-        /// searchTerm control.
+        /// fuImportfile control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox searchTerm;
+        protected global::System.Web.UI.WebControls.FileUpload fuImportfile;
         
         /// <summary>
-        /// btn_search control.
+        /// btnUpload control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btn_search;
+        protected global::System.Web.UI.WebControls.Button btnUpload;
         
         /// <summary>
-        /// btn_reset control.
+        /// lblStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btn_reset;
+        protected global::System.Web.UI.WebControls.Label lblStatus;
+        
+        /// <summary>
+        /// btnInsertToSql control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnInsertToSql;
+        
+        /// <summary>
+        /// gvFileContent control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvFileContent;
+        
+        /// <summary>
+        /// btnShowTableData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnShowTableData;
         
         /// <summary>
         /// gvSqlTableSakRegister control.
@@ -55,15 +82,6 @@ namespace Sakregister {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridView1;
-        
-        /// <summary>
-        /// SqlDataSource2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.SqlDataSource SqlDataSource2;
+        protected global::System.Web.UI.WebControls.GridView gvSqlTableSakRegister;
     }
 }

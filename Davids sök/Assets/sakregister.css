@@ -1,1 +1,24 @@
-﻿
+﻿.GridPager a
+{
+    display:block;
+    height:15px;
+    width:15px;
+    background-color:#3AC0F2;
+    color:#fff;
+    font-weight:bold;
+    border:1px solid #3AC0F2;
+    text-align:center;
+    text-decoration:none;
+}
+.GridPager span
+{
+    display:block;
+    height:15px;
+    width:15px;
+    background-color:#fff;
+    color:#3AC0F2;
+    font-weight:bold;
+    border:1px solid #3AC0F2;
+    text-align:center;
+    text-decoration:none;
+}

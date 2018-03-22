@@ -23,23 +23,24 @@
     <input type="checkbox" runat="server" ID="cbPreview" checked="False" name="preview" /><label for="<%= cbPreview.UniqueID %>">Jag godkänner uppladdning</label>
     <br /><br />
     <asp:GridView ID="gvSakRegister"
-                  OnRowDeleting="GvRowDeleting" runat="server"
+        runat="server"
+                  OnRowDeleting="GvRowDeleting"
                   AllowPaging="True"
-                  AllowSorting="True"
-                  OnDataBound="gvDatabound"
-                  OnPageIndexChanging="gvPageIndexChanged"
-                  OnSorting="gvSorting"
-                  
-                  OnRowDataBound="gvRowDatabound"
-                  CssClass="Grid"
-                  AlternatingRowStyle-CssClass="alt"
-                  PagerStyle-CssClass="pgr"
-                  DataKeyNames="Nr1" AutoGenerateColumns="False" BackColor="White" BorderColor="#CCCCCC" 
-        Font-Size="0.8em" BorderStyle="None" BorderWidth="1px" CellPadding="4" ForeColor="Black" 
+        AllowSorting="True"
+        OnDataBound="gvDatabound"
+        OnPageIndexChanging="gvPageIndexChanged"
+        OnSorting="gvSorting"
+        OnRowDataBound="gvRowDatabound"
+        CssClass="Grid"
+        AlternatingRowStyle-CssClass="alt"
+        PagerStyle-CssClass="pgr"
+        DataKeyNames="Nr1" AutoGenerateColumns="False" BackColor="White" BorderColor="#CCCCCC"
+        Font-Size="0.8em" BorderStyle="None" BorderWidth="1px" CellPadding="4" ForeColor="Black"
         GridLines="Horizontal" PageSize="25">
 <AlternatingRowStyle CssClass="alt"></AlternatingRowStyle>
         
         <Columns>
+            
             <asp:CommandField ShowDeleteButton="True">
 
                 <HeaderStyle Width="50px" />
