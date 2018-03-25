@@ -7,7 +7,7 @@
    <body>
       <form id="form1" runat="server">
          <div style="height: 368px">
-          <%--   <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>--%>
+    
             <h1><font face="Arial"><a name="Top"></a>Sakregister för kyrkomötet 1997-2015</font></h1>
             <p ALIGN="JUSTIFY">
                <font face="Arial" SIZE="4">
@@ -24,8 +24,7 @@
                till kyrkomötet (KMot).</font>
             </p>
             <h3>Skriv det du vill söka efter</h3>
-<%--            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                <ContentTemplate>--%>
+
                     <asp:TextBox ID="searchTerm" runat="server" Width="311px"></asp:TextBox><asp:Button ID="btn_search" runat="server" Text="Skicka" OnClick="btn_search_Click" /><asp:Button ID="btn_reset" runat="server" Text="Återställ" OnClick="btn_reset_Click" />
                     <br />
                     <br />
@@ -42,18 +41,7 @@
                   </Columns>
                      <HeaderStyle Font-Bold="True" />
               </asp:GridView>
-           <%--  <asp:GridView ID="gvItems" runat="server" AutoGenerateColumns="False" Width="1074px">
-                 <Columns>
-                     <asp:BoundField DataField="Ar" HeaderText="Ar" SortExpression="Ar"></asp:BoundField>
-                     <asp:BoundField DataField="Ord" HeaderText="Ord" SortExpression="Ord"></asp:BoundField>
-                     <asp:BoundField DataField="Arende" HeaderText="Arende" SortExpression="Arende"></asp:BoundField>
-                     <asp:BoundField DataField="Betankande" HeaderText="Betankande" SortExpression="Betankande"></asp:BoundField>
-                     <asp:BoundField DataField="Skrivelse" HeaderText="Skrivelse" SortExpression="Skrivelse"></asp:BoundField>
-                     <asp:BoundField DataField="Protokoll" HeaderText="Protokoll" SortExpression="Protokoll"></asp:BoundField>
-                 </Columns>
-             </asp:GridView>--%>
-<%--                </ContentTemplate>
-            </asp:UpdatePanel>--%>
+        
             <p><font face="Arial"><a name="Fork"></a>Förkortningar före 2000</font></p>
             <p><font face="Arial">Kyrkomötet</font></p>
             <p><b><font SIZE="2" face="Arial">CsSkr</font></b><font SIZE="2" face="Arial">
@@ -76,10 +64,10 @@
             <p>Preliminär version, vid kommentarer kontakta <a href="mailto:nils.warmland@svenskakyrkan.se">Nils Warmland</a>, ärkebiskopens och generalsekreterarens sekretariat</p>
              <p>&nbsp;</p>
              <p>
-                 <asp:SqlDataSource ID="SqlDataSource2" runat="server" ConnectionString="<%$ ConnectionStrings:CSImportConnectionString %>" 
-                     SelectCommand="SELECT [Ar], [Ord], [Arende], [Betankande], [Skrivelse], [Protokoll] FROM [Sakregister] WHERE ([Ord] LIKE '%' + @Ord + '%')">
+                 <asp:SqlDataSource ID="SqlDataSource2" runat="server" OnSelecting="SqlDataSource1_Selecting" ConnectionString="<%$ ConnectionStrings:CSImportConnectionString %>"
+                     SelectCommand="SELECT [Ar], [Ord], [Arende], [Betankande], [Skrivelse], [Protokoll] FROM [Sakregistret] WHERE ([Ord] LIKE '%' + @searchTerm + '%')">
                      <SelectParameters>
-                         <asp:QueryStringParameter Name="Ord" QueryStringField="ord" Type="String" />
+                         <asp:Parameter Name="searchTerm" Type="String" />
                      </SelectParameters>
                  </asp:SqlDataSource>
              </p>

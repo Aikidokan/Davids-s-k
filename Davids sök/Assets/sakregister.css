@@ -1,4 +1,7 @@
-﻿.GridPager a
+﻿body{
+    font-family:Verdana;
+}
+.GridPager a
 {
     display:block;
     height:15px;

@@ -11,37 +11,7 @@ namespace Sakregister
 {
     public partial class sok : System.Web.UI.Page
     {
-        //protected void Page_Load(object sender, EventArgs e)
-        //{
-        //    //if ( Page.IsPostBack )
-        //    //{
-        //    //    if ( searchTerm.Text != "" )
-        //    //    {
-        //    //        gvItems.DataSource = GetItemsRecord(searchTerm.Text);
-        //    //        gvItems.DataBind();
-        //    //    }
-        //    //}
-
-        //}
-
-        //public List<Classes.Sakregister> GetItemsRecord(string searchterm)
-        //{
-        //    sakregisterDataContext db = new sakregisterDataContext();
-        //    var listitemsrecord = db.Sakregisters.Where(sakregister => sakregister.Ord == searchterm).ToList();
-        //    return listitemsrecord;
-
-        //}
-
-        //protected void btn_search_Click(object sender, EventArgs e)
-        //{
-        //    gvItems.DataBind();
-        //}
-
-        //protected void btn_reset_Click(object sender, EventArgs e)
-        //{
-        //    searchTerm.Text = "";
-        //    gvItems.DataBind();
-        //}
+       
         protected void Page_Load( object sender , EventArgs e )
         {
             if ( Page.IsPostBack )
@@ -56,13 +26,16 @@ namespace Sakregister
            
         }
 
-
+        protected void SqlDataSource1_Selecting(object sender, SqlDataSourceSelectingEventArgs e)
+        {
+            e.Command.Parameters["@searchTerm"].Value = HttpUtility.UrlDecode(Request.QueryString["ord"]);
+        }
 
         protected void btn_search_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(searchTerm.Text.Trim()))
             {
-                Response.Redirect(Request.Path+"?ord=" + searchTerm.Text.Trim(),false);
+                Response.Redirect(Request.Path+"?ord=" + HttpUtility.UrlEncode(searchTerm.Text.Trim()),false);
             }
             GridView1.DataBind();
         }

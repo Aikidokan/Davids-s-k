@@ -38,16 +38,18 @@ namespace Sakregister
             set { ViewState["ImportTableDataSortDirection"] = value; }
         }
 
-        protected void Page_Load( object sender , EventArgs e )
+        protected void Page_Load(object sender, EventArgs e)
         {
             // The Page is accessed for the first time. 
-            if ( !IsPostBack )
+            if (!IsPostBack)
             {
-                ImportTableDataSortColumn = SqlTableDataSortColumn= "Id";
-                SqlTableDataSortDirection = ImportTableDataSortDirection = "DESC";
-                
+                SqlTableDataSortColumn = "Id";
+                SqlTableDataSortDirection = "DESC";
+
                 ImportTableDataSortDirection = "DESC";
-                btnInsertToSql.Visible =false ;
+                ImportTableDataSortColumn = "Id";
+
+                btnInsertToSql.Visible = false;
                 btnUpload.Visible = true;
                 lblStatus.Text = "";
             }
@@ -55,9 +57,9 @@ namespace Sakregister
 
         }
 
-        protected void DoUpload( object sender , EventArgs e )
+        protected void DoUpload(object sender, EventArgs e)
         {
-            if ( fuImportfile.PostedFile != null && fuImportfile.PostedFile.ContentLength > 0 )
+            if (fuImportfile.PostedFile != null && fuImportfile.PostedFile.ContentLength > 0)
             {
                 var fn = Path.GetFileName(fuImportfile.PostedFile.FileName);
                 var SaveLocation = Server.MapPath("Data") + "\\" + fn;
@@ -66,16 +68,16 @@ namespace Sakregister
                     fuImportfile.PostedFile.SaveAs(SaveLocation);
 
                     AddToDatatable(SaveLocation);
-                    
+
                     DataTable dt = AddToDatatable(SaveLocation);
-                    int numrows = dt.DefaultView.Count - 1;
-                    gvFileContent.Caption = Path.GetFileName(SaveLocation)+ " Antal rader: " + numrows;
+                    int numrows = dt.DefaultView.Count;
+                    gvFileContent.Caption = Path.GetFileName(SaveLocation) + " Antal rader: " + numrows;
                     gvFileContent.DataSource = dt;
                     gvFileContent.DataBind();
                     btnInsertToSql.Visible = true;
                     btnUpload.Visible = false;
                 }
-                catch ( Exception ex )
+                catch (Exception ex)
                 {
                     throw new Exception(ex.ToString());
                 }
@@ -86,28 +88,28 @@ namespace Sakregister
             }
         }
 
-        private DataTable AddToDatatable( string saveLocation )
+        private DataTable AddToDatatable(string saveLocation)
         {
 
             var excelConnString = string.Format(
-                "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0\"" , saveLocation);
+                "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0\"", saveLocation);
             //Create Connection to Excel work book 
             try
             {
-                using ( var connExcel = new OleDbConnection(excelConnString) )
+                using (var connExcel = new OleDbConnection(excelConnString))
                 {
 
                     var query = "Select * from [Sheet1$]";
-                    using ( var cmdExcel = new OleDbCommand(query , connExcel) )
+                    using (var cmdExcel = new OleDbCommand(query, connExcel))
                     {
-                        using ( var da = new OleDbDataAdapter() )
+                        using (var da = new OleDbDataAdapter())
                         {
 
                             cmdExcel.Connection = connExcel;
 
                             //Get the name of First Sheet.
                             connExcel.Open();
-                            var dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables , null);
+                            var dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
                             var sheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
                             //int numrows =  TargetWorksheet1.UsedRange.Rows.Count - 1;
                             connExcel.Close();
@@ -124,7 +126,7 @@ namespace Sakregister
                             var dt = new DataTable();
                             //Add columns to DataTable.
                             dt.Columns.AddRange(
-                                new DataColumn[ 7 ]
+                                new DataColumn[7]
                                 {
                                     new DataColumn("Id" , Type.GetType("System.Int32")) ,
                                     new DataColumn("Ar") , new DataColumn("Ord") ,
@@ -141,7 +143,7 @@ namespace Sakregister
                             //Set the Increment value.
                             dt.Columns["Id"].AutoIncrementStep = 1;
 
-                            foreach ( DataRow row in tmpdt.Rows )
+                            foreach (DataRow row in tmpdt.Rows)
                             {
 
                                 dt.ImportRow(row);
@@ -149,7 +151,7 @@ namespace Sakregister
                             }
 
                             // Set the sort column and sort order. 
-                            //dtImportFc.DefaultView.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
+                            dt.DefaultView.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
                             ViewState["ImportFileContent"] = dt;
 
                             return dt;
@@ -157,15 +159,23 @@ namespace Sakregister
                     }
                 }
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
                 throw new Exception(e.ToString());
 
             }
         }
 
-        protected void gvImportFileContentSorting( object sender , GridViewSortEventArgs e )
+        protected void gvImportFileContent_RowEditing(object sender, GridViewEditEventArgs e)
         {
+            gvFileContent.EditIndex = e.NewEditIndex;
+            BindImportFileContentGridView();
+
+        }
+
+        protected void gvImportFileContentSorting(object sender, GridViewSortEventArgs e)
+        {
+            //ImportTableDataSortDirection = 
             ImportTableDataSortDirection = ImportTableDataSortDirection == "ASC" ? "DESC" : "ASC";
             ImportTableDataSortColumn = e.SortExpression;
             BindImportFileContentGridView();
@@ -173,28 +183,30 @@ namespace Sakregister
 
         private void BindImportFileContentGridView()
         {
-            if ( ViewState["ImportFileContent"] != null )
+            if (ViewState["ImportFileContent"] != null)
             {
                 // Get the DataTable from ViewState. 
-                var dtImportFc = ( DataTable ) ViewState["ImportFileContent"];
-
-
-                // Convert the DataTable to DataView. 
-                var dvImportFc = new DataView(dtImportFc);
-
+                var dt = (DataTable)ViewState["ImportFileContent"];
 
                 // Set the sort column and sort order. 
-                dvImportFc.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
+                dt.DefaultView.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
 
 
                 // Bind the GridView control. 
-                gvFileContent.DataSource = dvImportFc;
+                gvFileContent.DataSource = dt.DefaultView;
                 gvFileContent.DataBind();
             }
         }
 
+        protected void GvImportGridViewRowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
+        {
 
-        protected void GvImportGridViewOnPageIndexChanging( object sender , GridViewPageEventArgs e )
+            gvFileContent.EditIndex = -1;
+            BindImportFileContentGridView();
+
+        }
+
+        protected void GvImportGridViewOnPageIndexChanging(object sender, GridViewPageEventArgs e)
         {
             // Set the index of the new display page.  
             gvFileContent.PageIndex = e.NewPageIndex;
@@ -207,134 +219,127 @@ namespace Sakregister
 
         private void BindSqlTableGridView()
         {
-            if ( ViewState["SqlTableData"] != null )
+            if (ViewState["SqlTableData"] != null)
             {
                 // Get the DataTable from ViewState. 
-                var dta = ( DataTable ) ViewState["SqlTableData"];
-
-
-                // Convert the DataTable to DataView. 
-                var dva = new DataView(dta);
-
-                dva.Sort = SqlTableDataSortColumn + " " + SqlTableDataSortDirection;
-                ;
-
-
-                // Bind the GridView control. 
-                gvSqlTableSakRegister.DataSource = dva;
+                var dta = (DataTable)ViewState["SqlTableData"];
+                dta.DefaultView.Sort = SqlTableDataSortColumn + " " + SqlTableDataSortDirection;
+                gvSqlTableSakRegister.DataSource = dta.DefaultView;
                 gvSqlTableSakRegister.DataBind();
-            
+
             }
+        }
+        protected void gvImportFileDatabound(object sender, EventArgs e)
+        {
+            var columnIndex = 0;
+            foreach (DataControlFieldHeaderCell headerCell in gvFileContent.HeaderRow.Cells)
+                if (headerCell.ContainingField.SortExpression == ImportTableDataSortColumn)
+                {
+                    columnIndex = gvFileContent.HeaderRow.Cells.GetCellIndex(headerCell);
+                    break;
+                }
+
+            var sortImage = new Image();
+            sortImage.ImageUrl = string.Format("images/{0}.png", ImportTableDataSortDirection);
+            gvFileContent.HeaderRow.Cells[columnIndex].Controls.Add(sortImage);
         }
 
         private DataTable GetSqlTableData()
         {
             var dta = new DataTable();
             var strConnection = ConfigurationManager.ConnectionStrings["CSImportConnectionString"].ToString();
-            using ( var con = new SqlConnection(strConnection) )
+            using (var con = new SqlConnection(strConnection))
             {
                 con.Open();
-
-                var cmd = new SqlCommand("Select * from sakregister" , con);
-                var adapter = new SqlDataAdapter(cmd);
-                var ds = new DataSet();
-                adapter.Fill(ds , "sakregister");
-                dta = ds.Tables[0];
-                adapter.Dispose();
-                ds = null;
-                cmd.Dispose();
-                con.Close();
+                var cmd = new SqlCommand("Select * from sakregistret", con);
+                var sqlDa = new SqlDataAdapter(cmd);
+                sqlDa.Fill(dta);
                 ViewState["SqlTableData"] = dta;
                 return dta;
             }
         }
 
-        protected void gvSqlTableDeleting( object sender , GridViewDeleteEventArgs e )
+        protected void gvSqlTableDeleting(object sender, GridViewDeleteEventArgs e)
         {
             try
             {
                 var strConnection = ConfigurationManager.ConnectionStrings["CSImportConnectionString"].ToString();
-                using ( var con = new SqlConnection(strConnection) )
+                using (var con = new SqlConnection(strConnection))
                 {
-                    var gvSqlTableData = ( GridView ) sender;
+                    var gvSqlTableData = (GridView)sender;
                     var row = e.RowIndex;
                     var rowId = gvSqlTableData.DataKeys[row].Values[0].ToString();
 
-                    var cmd = new SqlCommand("delete from sakregister where Id=" + rowId , con);
+                    var cmd = new SqlCommand("delete from sakregistret where Id=" + rowId, con);
                     con.Open();
                     cmd.ExecuteNonQuery();
                     con.Close();
                     BindSqlTableGridView();
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this , GetType() , "alert" , "alert('" + ex.Message + "');" , true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert", "alert('" + ex.Message + "');", true);
             }
 
             // Refresh the GridView
         }
 
-        protected void gvSqlTablePageIndexChanged( object sender , GridViewPageEventArgs e )
+        protected void gvSqlTablePageIndexChanged(object sender, GridViewPageEventArgs e)
         {
             gvSqlTableSakRegister.PageIndex = e.NewPageIndex;
             BindSqlTableGridView();
         }
 
-        protected void gvSqlTableSorting( object sender , GridViewSortEventArgs e )
+        protected void gvSqlTableSorting(object sender, GridViewSortEventArgs e)
         {
             SqlTableDataSortDirection = SqlTableDataSortDirection == "ASC" ? "DESC" : "ASC";
             SqlTableDataSortColumn = e.SortExpression;
             BindSqlTableGridView();
         }
 
-        protected void gvSqlTableDatabound( object sender , EventArgs e )
+
+
+        protected void gvSqlTableDatabound(object sender, EventArgs e)
         {
             var columnIndex = 0;
-            foreach ( DataControlFieldHeaderCell headerCell in gvSqlTableSakRegister.HeaderRow.Cells )
-                if ( headerCell.ContainingField.SortExpression == SqlTableDataSortColumn )
+            foreach (DataControlFieldHeaderCell headerCell in gvSqlTableSakRegister.HeaderRow.Cells)
+                if (headerCell.ContainingField.SortExpression == SqlTableDataSortColumn)
                 {
                     columnIndex = gvSqlTableSakRegister.HeaderRow.Cells.GetCellIndex(headerCell);
                     break;
                 }
 
             var sortImage = new Image();
-            sortImage.ImageUrl = string.Format("images/{0}.png" , SqlTableDataSortDirection);
+            sortImage.ImageUrl = string.Format("images/{0}.png", SqlTableDataSortDirection);
             gvSqlTableSakRegister.HeaderRow.Cells[columnIndex].Controls.Add(sortImage);
         }
 
 
-        protected void gvSqlTableRowDatabound( object sender , GridViewRowEventArgs e )
+        protected void gvSqlTableRowDatabound(object sender, GridViewRowEventArgs e)
         {
-            if ( e.Row.RowType == DataControlRowType.DataRow )
+            if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 // reference the Delete LinkButton
-                var db = ( LinkButton ) e.Row.Cells[0].Controls[0];
+                var db = (LinkButton)e.Row.Cells[0].Controls[0];
 
                 db.OnClientClick = "return confirm('Du håller på att ta bort en rad, vill du fortsätta?');";
             }
         }
 
-        protected void DoShowSqlTableData( object sender , EventArgs e )
+        protected void DoShowSqlTableData(object sender, EventArgs e)
         {
             FillSqlData();
         }
 
         private void FillSqlData()
         {
-            if ( ViewState["SqlTableData"] == null )
+            if (ViewState["SqlTableData"] == null)
             {
                 DataTable dt = GetSqlTableData();
-                var dva = new DataView(dt);
-
                 dt.DefaultView.Sort = "Id desc";
-               
 
-
-                // Bind the GridView control. 
-                gvSqlTableSakRegister.DataSource = dva;
-                gvSqlTableSakRegister.DataBind();
-                gvSqlTableSakRegister.DataSource = dt;
+                gvSqlTableSakRegister.DataSource = dt.DefaultView;
                 gvSqlTableSakRegister.DataBind();
             }
             else
@@ -343,28 +348,28 @@ namespace Sakregister
             }
         }
 
-        protected void DoImportFileContent( object sender , EventArgs e )
+        protected void DoImportFileContent(object sender, EventArgs e)
         {
-            if ( ViewState["ImportFileContent"] != null )
+            if (ViewState["ImportFileContent"] != null)
             {
                 try
                 {
 
                     // Get the DataTable from ViewState. 
-                    var dtImportFc = ( DataTable ) ViewState["ImportFileContent"];
+                    var dtImportFc = (DataTable)ViewState["ImportFileContent"];
 
                     var strConnection =
                         ConfigurationManager.ConnectionStrings["CSImportConnectionString"].ToString();
-                    using ( var sqlBulk = new SqlBulkCopy(strConnection) )
+                    using (var sqlBulk = new SqlBulkCopy(strConnection))
                     {
-                        sqlBulk.ColumnMappings.Add("Ar" , "Ar");
-                        sqlBulk.ColumnMappings.Add("Ord" , "Ord");
-                        sqlBulk.ColumnMappings.Add("Arende" , "Arende");
-                        sqlBulk.ColumnMappings.Add("Betankande" , "Betankande");
-                        sqlBulk.ColumnMappings.Add("Skrivelse" , "Skrivelse");
-                        sqlBulk.ColumnMappings.Add("Protokoll" , "Protokoll");
+                        sqlBulk.ColumnMappings.Add("Ar", "Ar");
+                        sqlBulk.ColumnMappings.Add("Ord", "Ord");
+                        sqlBulk.ColumnMappings.Add("Arende", "Arende");
+                        sqlBulk.ColumnMappings.Add("Betankande", "Betankande");
+                        sqlBulk.ColumnMappings.Add("Skrivelse", "Skrivelse");
+                        sqlBulk.ColumnMappings.Add("Protokoll", "Protokoll");
 
-                        sqlBulk.DestinationTableName = "sakregister";
+                        sqlBulk.DestinationTableName = "sakregistret";
                         sqlBulk.WriteToServer(dtImportFc);
                     }
                     ViewState.Remove("ImportFileContent");
@@ -377,7 +382,7 @@ namespace Sakregister
                     ClearUlForm();
 
                 }
-                catch ( Exception ex )
+                catch (Exception ex)
                 {
                     throw new Exception(ex.ToString());
                 }
@@ -385,8 +390,46 @@ namespace Sakregister
         }
         protected void ClearUlForm()
         {
-            fuImportfile.Attributes.Clear(); 
+            fuImportfile.Attributes.Clear();
             //Clear other form fields
+        }
+
+        protected void gvFileContent_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        {
+
+            GridViewRow row = gvFileContent.Rows[e.RowIndex]; //Find the row that was clicked for updating.
+            gvFileContent.EditIndex = -1; //Change the edit index to -1 .
+            if (row != null)
+            {
+
+                TextBox Ar = (TextBox)gvFileContent.Rows[e.RowIndex].Cells[2].Controls[0];
+                TextBox Ord = (TextBox)gvFileContent.Rows[e.RowIndex].Cells[3].Controls[0];
+                TextBox Arende = (TextBox)gvFileContent.Rows[e.RowIndex].Cells[4].Controls[0];
+                TextBox Betankande = (TextBox)gvFileContent.Rows[e.RowIndex].Cells[5].Controls[0];
+                TextBox Skrivelse = (TextBox)gvFileContent.Rows[e.RowIndex].Cells[6].Controls[0];
+                TextBox Protokoll = (TextBox)gvFileContent.Rows[e.RowIndex].Cells[7].Controls[0];
+                DataTable dt = (DataTable)ViewState["ImportFileContent"]; ; //Get the values of the datatable from the session variable
+
+                //Traverse through the Datatable till you hit the same row as the row needed to be updated. 
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (e.RowIndex == i)
+                    {
+                        dt.Rows[i][0] = Ar.Text;
+                        dt.Rows[i][1] = Ord.Text;
+                        dt.Rows[i][2] = Arende.Text;
+                        dt.Rows[i][3] = Betankande.Text;
+                        dt.Rows[i][4] = Skrivelse.Text;
+                        dt.Rows[i][5] = Protokoll.Text;
+                        ViewState.Remove("ImportFileContent");
+
+                        ViewState["ImportFileContent"] = dt;
+                        BindImportFileContentGridView();
+                    }
+                }
+            }
+
         }
     }
 }

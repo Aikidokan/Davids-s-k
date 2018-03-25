@@ -49,7 +49,7 @@ namespace Sakregister {
         protected global::System.Web.UI.WebControls.Button btn_reset;
         
         /// <summary>
-        /// gvSqlTableSakRegister control.
+        /// GridView1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
