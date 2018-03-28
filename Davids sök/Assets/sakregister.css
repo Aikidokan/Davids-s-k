@@ -1,27 +1,32 @@
-﻿body{
-    font-family:Verdana;
+﻿.mGrid { 
+    width: 700px; 
+    background-color: #fff; 
+    margin: 5px 0 10px 0; 
+    border: solid 1px #525252; 
+    border-collapse:collapse; 
 }
-.GridPager a
-{
-    display:block;
-    height:15px;
-    width:15px;
-    background-color:#3AC0F2;
-    color:#fff;
-    font-weight:bold;
-    border:1px solid #3AC0F2;
-    text-align:center;
-    text-decoration:none;
+.mGrid td { 
+    padding: 5px; 
+    border: solid 1px #c1c1c1; 
+    color: #717171; 
 }
-.GridPager span
-{
-    display:block;
-    height:15px;
-    width:15px;
-    background-color:#fff;
-    color:#3AC0F2;
-    font-weight:bold;
-    border:1px solid #3AC0F2;
-    text-align:center;
-    text-decoration:none;
+.mGrid th { 
+    padding: 4px 2px; 
+    color: #fff; 
+    background-color: #424242; 
+    border-left: solid 1px #525252; 
+    font-size: 0.9em; 
 }
+.mGrid .alt { background: #fcfcfc url(grd_alt.png) repeat-x top; }
+.mGrid .pgr { background: #424242 url(grd_pgr.png) repeat-x top; }
+.mGrid .pgr table { margin: 5px 0; }
+.mGrid .pgr td { 
+    border-width: 0; 
+    padding: 0 6px; 
+    border-left: solid 1px #666; 
+    font-weight: bold; 
+    color: #fff; 
+    line-height: 12px; 
+ }   
+.mGrid .pgr a { color: #666; text-decoration: none; }
+.mGrid .pgr a:hover { color: #000; text-decoration: none; }

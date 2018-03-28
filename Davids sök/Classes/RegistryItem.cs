@@ -7,7 +7,7 @@ namespace Sakregister.Classes
 {
     public class RegistryItem
     {
-        public string Nr1 { get; set; }
+        public int Id { get; set; }
         public string Ar { get; set; }
         public string Ord { get; set; }
         public string Arende { get; set; }
@@ -15,6 +15,11 @@ namespace Sakregister.Classes
         public string Skrivelse { get; set; }
         public string Protokoll { get; set; }
     }
+
+	public class SearchResult
+	{
+		public List<RegistryItem> Items {  get; set;}
+	}
 }
 /*
 

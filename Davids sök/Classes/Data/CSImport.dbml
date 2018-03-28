@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="CSImport-Lokal" Class="CSImportDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=.\SQLEXPRESS;Initial Catalog=CSImport-Lokal;Integrated Security=False;User ID=webuser;Max Pool Size=100;Application Name=EntityFramework" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="CSImport_LokalConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Sakregistret" Member="Sakregistrets">
+    <Type Name="Sakregistret">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Ar" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Ord" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Arende" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Betankande" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Skrivelse" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Protokoll" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Created" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>
