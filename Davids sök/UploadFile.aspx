@@ -17,7 +17,7 @@
 
         <asp:Button ID="btnInsertToSql" runat="server" Text="Importera resultatet"
                     OnClick="DoImportFileContent" /> 
-
+        <asp:GridView runat="server" id="gvtest"></asp:GridView>
        
         <asp:GridView ID="gvFileContent" runat="server"
             DataKeyNames="Id"

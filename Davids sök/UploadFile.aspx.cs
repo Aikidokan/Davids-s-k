@@ -4,15 +4,21 @@ using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Sakregister.Classes;
 
 namespace Sakregister
 {
-    public partial class UploadFile : System.Web.UI.Page
+	
+	public partial class UploadFile : System.Web.UI.Page
     {
         private string SqlTableDataSortColumn
         {
@@ -67,15 +73,15 @@ namespace Sakregister
                 {
                     fuImportfile.PostedFile.SaveAs(SaveLocation);
 
-                    AddToDatatable(SaveLocation);
+                    //AddToDatatable(SaveLocation);
 
-                    DataTable dt = AddToDatatable(SaveLocation);
+                    DataTable dt = ReadAsDataTable(SaveLocation);
                     int numrows = dt.DefaultView.Count;
                     gvFileContent.Caption = Path.GetFileName(SaveLocation) + " Antal rader: " + numrows;
                     gvFileContent.DataSource = dt;
                     gvFileContent.DataBind();
                     btnInsertToSql.Visible = true;
-                    btnUpload.Visible = false;
+                    btnUpload.Text = "Ladda upp en ny fil";
                 }
                 catch (Exception ex)
                 {
@@ -88,85 +94,134 @@ namespace Sakregister
             }
         }
 
-        private DataTable AddToDatatable(string saveLocation)
-        {
 
-            var excelConnString = string.Format(
-                "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0\"", saveLocation);
-            //Create Connection to Excel work book 
-            try
-            {
-                using (var connExcel = new OleDbConnection(excelConnString))
-                {
 
-                    var query = "Select * from [Sheet1$]";
-                    using (var cmdExcel = new OleDbCommand(query, connExcel))
-                    {
-                        using (var da = new OleDbDataAdapter())
-                        {
+	    private DataTable ReadAsDataTable( string fileName )
+	    {
+		    DataTable dta = OpenXMLHelper.ExcelWorksheetToDataTable(fileName, fuImportfile.FileName);
+		   dta.Rows.RemoveAt(0);
+				var dt = new DataTable();
+			    //Add columns to DataTable.
+			    dt.Columns.AddRange(
+				    new DataColumn[ 7 ]
+				    {
+					    new DataColumn("Id" , Type.GetType("System.Int32")) ,
+					    new DataColumn("Ar") , new DataColumn("Ord") ,
+					    new DataColumn("Arende") , new DataColumn("Betankande") ,
+					    new DataColumn("Skrivelse") , new DataColumn("Protokoll")
+				    });
 
-                            cmdExcel.Connection = connExcel;
+			    //Set AutoIncrement True for the First Column.
+			    dt.Columns["Id"].AutoIncrement = true;
 
-                            //Get the name of First Sheet.
-                            connExcel.Open();
-                            var dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                            var sheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
-                            //int numrows =  TargetWorksheet1.UsedRange.Rows.Count - 1;
-                            connExcel.Close();
+			    //Set the Starting or Seed value.
+			    dt.Columns["Id"].AutoIncrementSeed = 1;
 
-                            //Read Data from First Sheet.
-                            connExcel.Open();
-                            cmdExcel.CommandText =
-                                "SELECT Ar,Ord,Arende,Betankande,Skrivelse,Protokoll From [" + sheetName + "]";
-                            da.SelectCommand = cmdExcel;
-                            connExcel.Close();
+			    //Set the Increment value.
+			    dt.Columns["Id"].AutoIncrementStep = 1;
 
-                            var tmpdt = new DataTable();
-                            da.Fill(tmpdt);
-                            var dt = new DataTable();
-                            //Add columns to DataTable.
-                            dt.Columns.AddRange(
-                                new DataColumn[7]
-                                {
-                                    new DataColumn("Id" , Type.GetType("System.Int32")) ,
-                                    new DataColumn("Ar") , new DataColumn("Ord") ,
-                                    new DataColumn("Arende") , new DataColumn("Betankande") ,
-                                    new DataColumn("Skrivelse") , new DataColumn("Protokoll")
-                                });
+			    foreach ( DataRow row in dta.Rows )
+			    {
 
-                            //Set AutoIncrement True for the First Column.
-                            dt.Columns["Id"].AutoIncrement = true;
+				dt.Rows.Add(null, row[0], row[1], row[2], row[3], row[4], row[5]);
 
-                            //Set the Starting or Seed value.
-                            dt.Columns["Id"].AutoIncrementSeed = 1;
+			}
 
-                            //Set the Increment value.
-                            dt.Columns["Id"].AutoIncrementStep = 1;
+			    // Set the sort column and sort order. 
+			    dt.DefaultView.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
+			    ViewState["ImportFileContent"] = dt;
 
-                            foreach (DataRow row in tmpdt.Rows)
-                            {
+			    return dt;
 
-                                dt.ImportRow(row);
 
-                            }
+		    }
+	    
 
-                            // Set the sort column and sort order. 
-                            dt.DefaultView.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
-                            ViewState["ImportFileContent"] = dt;
 
-                            return dt;
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
+	
 
-            }
-        }
+		private DataTable AddToDatatable2(string saveLocation)
+		{
 
-        protected void gvImportFileContent_RowEditing(object sender, GridViewEditEventArgs e)
+			var excelConnString = string.Format(
+				"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0\"", saveLocation);
+			//Create Connection to Excel work book 
+			try
+			{
+				using (var connExcel = new OleDbConnection(excelConnString))
+				{
+
+					var query = "Select * from [Sheet1$]";
+					using (var cmdExcel = new OleDbCommand(query, connExcel))
+					{
+						using (var da = new OleDbDataAdapter())
+						{
+
+							cmdExcel.Connection = connExcel;
+
+							//Get the name of First Sheet.
+							connExcel.Open();
+							var dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+							var sheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+							//int numrows =  TargetWorksheet1.UsedRange.Rows.Count - 1;
+							connExcel.Close();
+
+							//Read Data from First Sheet.
+							connExcel.Open();
+							cmdExcel.CommandText =
+								"SELECT Ar,Ord,Arende,Betankande,Skrivelse,Protokoll From [" + sheetName + "]";
+							da.SelectCommand = cmdExcel;
+							connExcel.Close();
+
+							var tmpdt = new DataTable();
+							da.Fill(tmpdt);
+							var dt = new DataTable();
+							//Add columns to DataTable.
+							dt.Columns.AddRange(
+								new DataColumn[7]
+								{
+									new DataColumn("Id"  , typeof(SqlInt32)) ,
+									new DataColumn("Ar", typeof(SqlString)) ,
+									new DataColumn("Ord", typeof(SqlString)) ,
+									new DataColumn("Arende", typeof(SqlString)),
+									new DataColumn("Betankande", typeof(SqlString)) ,
+									new DataColumn("Skrivelse", typeof(SqlString)) ,
+									new DataColumn("Protokoll", typeof(SqlString))
+								});
+
+							//Set AutoIncrement True for the First Column.
+							dt.Columns["Id"].AutoIncrement = true;
+
+							//Set the Starting or Seed value.
+							dt.Columns["Id"].AutoIncrementSeed = 1;
+
+							//Set the Increment value.
+							dt.Columns["Id"].AutoIncrementStep = 1;
+
+							foreach (DataRow row in tmpdt.Rows)
+							{
+
+								dt.ImportRow(row);
+
+							}
+
+							// Set the sort column and sort order. 
+							dt.DefaultView.Sort = ImportTableDataSortColumn + " " + ImportTableDataSortDirection;
+							ViewState["ImportFileContent"] = dt;
+
+							return dt;
+						}
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				throw new Exception(e.ToString());
+
+			}
+		}
+
+		protected void gvImportFileContent_RowEditing(object sender, GridViewEditEventArgs e)
         {
             gvFileContent.EditIndex = e.NewEditIndex;
             BindImportFileContentGridView();
@@ -357,7 +412,7 @@ namespace Sakregister
 
                     // Get the DataTable from ViewState. 
                     var dtImportFc = (DataTable)ViewState["ImportFileContent"];
-
+	                
                     var strConnection =
                         ConfigurationManager.ConnectionStrings["CSImportConnectionString"].ToString();
                     using (var sqlBulk = new SqlBulkCopy(strConnection))
@@ -372,14 +427,16 @@ namespace Sakregister
                         sqlBulk.DestinationTableName = "sakregistret";
                         sqlBulk.WriteToServer(dtImportFc);
                     }
-                    ViewState.Remove("ImportFileContent");
-                    ViewState.Remove("SqlTableData");
-                    gvFileContent.Visible = false;
-                    FillSqlData();
-                    lblStatus.Text = "Uppladdad och inlagd";
-                    btnInsertToSql.Visible = false;
-                    btnUpload.Visible = true;
-                    ClearUlForm();
+	    //            gvtest.DataSource = dtImportFc;
+					//gvtest.DataBind();
+					ViewState.Remove("ImportFileContent");
+					ViewState.Remove("SqlTableData");
+					gvFileContent.Visible = false;
+					FillSqlData();
+					lblStatus.Text = "Uppladdad och inlagd";
+					btnInsertToSql.Visible = false;
+					btnUpload.Visible = true;
+					ClearUlForm();
 
                 }
                 catch (Exception ex)

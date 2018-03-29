@@ -1,5 +1,7 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Sakregister.Default" %>
 
+<%@ Register src="uc/menu.ascx" tagname="menu" tagprefix="uc1" %>
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -50,8 +52,8 @@
 </head>
 <body>
     <form id="form1" runat="server">
-
-
+<uc1:menu ID="menu1" runat="server" />
+      
         <h3>Skriv det du vill söka efter</h3>
 
         <input type="text" name="search" id="search_box" class='search_box' />
@@ -67,6 +69,8 @@
 
             
         </table>
+
+        
 
     </form>
 </body>
