@@ -22,7 +22,7 @@ namespace Sakregister.Classes.Data
 	using System;
 	
 	
-	[global::System.Data.Linq.Mapping.DatabaseAttribute(Name="CSImport")]
+	[global::System.Data.Linq.Mapping.DatabaseAttribute(Name="CSImport-Lokal")]
 	public partial class CSImportDataContext : System.Data.Linq.DataContext
 	{
 		
